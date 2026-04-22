@@ -1,0 +1,3718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Case Study 03 · Lead Enrichment — Ivry Studio</title>
+<meta name="description" content="How we doubled qualified leads for a B2B sales team by automating lead enrichment with AI.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=Geist+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+/* ================================================================
+   IVRY STUDIO — CASE STUDY 03 · TERMINAL / DASHBOARD EDITION
+   Financial green + ochre, grid-heavy, data-driven aesthetic
+   ================================================================ */
+
+:root {
+  /* Warm off-white base (NOT pure white) */
+  --paper: #F7F7F5;
+  --paper-2: #EFEFEB;
+  --paper-3: #E7E7E2;
+  --paper-hi: #FCFCFA;
+
+  /* Ink */
+  --ink: #0D0D0D;
+  --ink-2: #1C1C1C;
+  --ink-3: #363530;
+  --ink-4: #5C5A54;
+  --ink-5: #8B8680;
+  --ink-6: #B8B5AF;
+  --ink-7: #D6D3CE;
+
+  /* Forest green — primary accent (Bloomberg / Stripe dashboard vibe) */
+  --green: #0F5132;
+  --green-2: #1A6B44;
+  --green-3: #2D8C5E;
+  --green-soft: #E8F0EB;
+  --green-softer: #F0F5F2;
+
+  /* Ochre — secondary accent (alerts, highlights, badges) */
+  --ochre: #B8860B;
+  --ochre-2: #9A7009;
+  --ochre-soft: #F7EFD9;
+  --ochre-softer: #FAF5E8;
+
+  /* Signal colors — muted to match palette */
+  --red: #8B2F2F;
+  --red-soft: #F5E5E5;
+
+  /* Borders */
+  --border: #D6D3CE;
+  --border-2: #B8B5AF;
+  --border-strong: #8B8680;
+
+  /* Fonts */
+  --font-display: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Geist', -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', 'Menlo', monospace;
+  --font-serif: 'Instrument Serif', Georgia, serif;
+
+  /* Ease */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Shadow (subtle, paper-like) */
+  --shadow-sm: 0 1px 2px rgba(13, 13, 13, 0.04);
+  --shadow-md: 0 4px 12px rgba(13, 13, 13, 0.06), 0 1px 3px rgba(13, 13, 13, 0.04);
+  --shadow-lg: 0 12px 32px rgba(13, 13, 13, 0.10);
+
+  /* Radii - minimal */
+  --r: 4px;
+  --r-2: 6px;
+  --r-3: 8px;
+}
+
+/* ================ RESET ================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  background: var(--paper);
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'ss01', 'ss03', 'cv01', 'cv11';
+  font-variation-settings: 'opsz' 14;
+  line-height: 1.55;
+  overflow-x: hidden;
+  cursor: none;
+  letter-spacing: -0.005em;
+}
+
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: none; background: none; border: none; }
+input, textarea { font-family: inherit; font-size: 16px; }
+
+::selection { background: var(--green); color: var(--paper); }
+
+/* ================ CUSTOM CURSOR ================ */
+.cursor {
+  position: fixed;
+  top: 0; left: 0;
+  width: 18px; height: 18px;
+  pointer-events: none;
+  z-index: 9999;
+  margin: -10px 0 0 -10px;
+  opacity: 0;
+  transition: width 0.25s var(--ease), height 0.25s var(--ease), opacity 0.3s, margin 0.25s var(--ease);
+}
+
+.cursor::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--green);
+  border-radius: 50%;
+  background: rgba(15, 81, 50, 0.15);
+}
+
+.cursor::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: var(--green);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px var(--green-3);
+}
+
+.cursor.active {
+  opacity: 1;
+  animation: cursorGreenPulse 2s ease-in-out infinite;
+}
+
+@keyframes cursorGreenPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 4px rgba(15, 81, 50, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 12px rgba(45, 140, 94, 0.8));
+  }
+}
+
+.cursor.hover {
+  width: 56px;
+  height: 56px;
+  margin: -28px 0 0 -28px;
+}
+
+.cursor.hover::before {
+  border-width: 2px;
+  border-color: var(--green-3);
+  background: rgba(45, 140, 94, 0.1);
+}
+
+.cursor.hover::after {
+  width: 6px;
+  height: 6px;
+}
+
+@media (pointer: coarse) {
+  .cursor { display: none; }
+  body, a, button, input { cursor: auto !important; }
+}
+
+/* ================ TOP BAR (terminal-style) ================ */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: var(--ink);
+  color: var(--paper);
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  border-bottom: 1px solid var(--ink);
+}
+
+.topbar-dots {
+  display: flex;
+  gap: 6px;
+  margin-right: 16px;
+}
+
+.topbar-dots span {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+.topbar-dots span:nth-child(1) { background: #F77060; }
+.topbar-dots span:nth-child(2) { background: #EDBF42; }
+.topbar-dots span:nth-child(3) { background: #54B567; }
+
+.topbar-path {
+  color: var(--ink-5);
+}
+.topbar-path strong {
+  color: var(--paper);
+  font-weight: 500;
+}
+
+.topbar-right {
+  margin-left: auto;
+  color: var(--ink-5);
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.topbar-right .status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-right .status::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green-3);
+  box-shadow: 0 0 8px var(--green-3);
+  animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ================ NAVIGATION ================ */
+.nav {
+  position: fixed;
+  top: 40px;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  background: rgba(247, 247, 245, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 18px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+
+.brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: var(--ink);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s var(--ease);
+}
+
+.brand-mark::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--ink) 0%, var(--ink-3) 100%);
+  z-index: 0;
+}
+
+.brand-mark svg {
+  position: relative;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+}
+
+.brand:hover .brand-mark {
+  transform: rotate(-6deg);
+}
+
+.brand-text {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.brand-text .mark {
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.brand-text .slash {
+  color: var(--ink-6);
+  font-weight: 400;
+  margin: 0 2px;
+}
+
+.brand-text .studio {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 17px;
+  color: var(--ink-3);
+  letter-spacing: -0.01em;
+}
+
+.brand-sub {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-5);
+  letter-spacing: 0.05em;
+  padding-left: 16px;
+  border-left: 1px solid var(--border);
+}
+
+.nav-right {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+
+.nav-link {
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--ink-4);
+  border-radius: var(--r);
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  color: var(--ink);
+  background: var(--paper-2);
+}
+
+.nav-cta {
+  padding: 10px 18px;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--r);
+  margin-left: 12px;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.005em;
+}
+
+.nav-cta:hover {
+  background: var(--green);
+  transform: translateY(-1px);
+}
+
+.nav-cta svg {
+  width: 14px; height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 12px 20px;
+  font-size: 13px;
+  z-index: 999;
+  border-radius: var(--r);
+  transition: top 0.2s;
+  font-weight: 600;
+}
+
+.skip-link:focus { top: 60px; }
+
+*:focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+
+/* ================ HERO ================ */
+.hero {
+  padding: 160px 40px 100px;
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(13, 13, 13, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13, 13, 13, 0.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at top, black 20%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at top, black 20%, transparent 75%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hero-content {
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-meta-row {
+  display: flex;
+  gap: 32px;
+  margin-bottom: 48px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-5);
+  letter-spacing: 0.03em;
+  flex-wrap: wrap;
+}
+
+.hero-meta-row .item {
+  display: flex;
+  gap: 8px;
+}
+
+.hero-meta-row .label {
+  color: var(--ink-6);
+}
+
+.hero-meta-row .value {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.hero-meta-row .value.green { color: var(--green); }
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(46px, 7vw, 88px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  margin-bottom: 28px;
+  max-width: 1100px;
+  color: var(--ink);
+  font-feature-settings: 'ss01', 'ss03', 'cv11';
+}
+
+.hero-title .em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.hero-title .accent {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.hero-title .highlight {
+  background: var(--ochre-soft);
+  padding: 0 0.15em;
+  color: var(--ink);
+}
+
+.hero-subtitle {
+  font-size: clamp(16px, 1.5vw, 19px);
+  color: var(--ink-4);
+  max-width: 680px;
+  line-height: 1.55;
+  margin-bottom: 56px;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 80px;
+}
+
+.btn {
+  padding: 13px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--r);
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.005em;
+  font-family: var(--font-body);
+}
+
+.btn-primary {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn-primary:hover {
+  background: var(--green);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--paper-hi);
+  color: var(--ink);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover {
+  background: var(--paper-2);
+  border-color: var(--border-2);
+}
+
+.btn svg {
+  width: 14px; height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+  transition: transform 0.2s;
+}
+
+.btn-primary:hover svg { transform: translateX(3px); }
+
+/* Hero data table (shows project snapshot) */
+.hero-snapshot {
+  background: var(--paper-hi);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  padding: 0;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  max-width: 900px;
+}
+
+.hero-snapshot-header {
+  background: var(--paper-2);
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-5);
+  letter-spacing: 0.04em;
+}
+
+.hero-snapshot-header .live-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  background: var(--green-soft);
+  color: var(--green);
+  border-radius: 100px;
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.hero-snapshot-header .live-tag::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--green-3);
+  animation: pulse-dot 2s infinite;
+}
+
+.hero-snapshot-body {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.snap-item {
+  padding: 24px 24px;
+  border-right: 1px solid var(--border);
+}
+
+.snap-item:last-child { border-right: none; }
+
+.snap-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-5);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.snap-value {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 4px;
+  font-feature-settings: 'ss01', 'tnum';
+}
+
+.snap-value.green { color: var(--green); }
+.snap-value.ochre { color: var(--ochre); }
+
+.snap-sublabel {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-5);
+}
+
+/* ================ SECTION DIVIDER ================ */
+.chapter-mark {
+  padding: 100px 40px 40px;
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 48px;
+  align-items: baseline;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 48px;
+}
+
+.chapter-num-block {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-5);
+  letter-spacing: 0.08em;
+}
+
+.chapter-num-block .num {
+  color: var(--green);
+  font-weight: 600;
+}
+
+.chapter-num-block .line {
+  display: block;
+  margin-top: 6px;
+  text-transform: uppercase;
+  font-size: 10.5px;
+  color: var(--ink-6);
+}
+
+.chapter-title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 4vw, 48px);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  color: var(--ink);
+  font-feature-settings: 'ss01', 'ss03';
+}
+
+.chapter-title .em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+.chapter-title .accent {
+  color: var(--green);
+}
+
+/* ================ SECTIONS ================ */
+.section {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 40px 40px 120px;
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+
+.prose {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ink-3);
+  max-width: 580px;
+}
+
+.prose p { margin-bottom: 18px; }
+.prose strong { color: var(--ink); font-weight: 600; }
+
+/* ================ PROBLEM / DATA TABLE ================ */
+.data-panel {
+  background: var(--paper-hi);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.data-panel-header {
+  padding: 14px 20px;
+  background: var(--paper-2);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  letter-spacing: 0.03em;
+}
+
+.data-panel-header .title {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.data-panel-header .meta {
+  color: var(--ink-5);
+  font-size: 10.5px;
+}
+
+.data-row {
+  display: grid;
+  grid-template-columns: 220px 1fr 80px;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  transition: background 0.15s;
+}
+
+.data-row:last-child { border-bottom: none; }
+.data-row:hover { background: var(--paper-2); }
+
+.data-row .name {
+  font-size: 13.5px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.data-row .name .sub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-5);
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.data-row .bar-container {
+  height: 6px;
+  background: var(--paper-3);
+  border-radius: 100px;
+  position: relative;
+  overflow: hidden;
+}
+
+.data-row .bar {
+  height: 100%;
+  background: var(--ink-4);
+  border-radius: 100px;
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 1s var(--ease);
+}
+
+.data-row.revealed .bar { transform: scaleX(var(--fill, 0.5)); }
+
+.data-row .bar.red { background: var(--red); }
+.data-row .bar.green { background: var(--green); }
+.data-row .bar.ochre { background: var(--ochre); }
+
+.data-row .value {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  text-align: right;
+}
+
+.data-row .value.red { color: var(--red); }
+.data-row .value.ochre { color: var(--ochre); }
+
+/* Problem callout */
+.callout {
+  margin-top: 40px;
+  padding: 28px 32px;
+  background: var(--ochre-softer);
+  border-left: 3px solid var(--ochre);
+  border-radius: 0 var(--r-2) var(--r-2) 0;
+}
+
+.callout-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ochre-2);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.callout-text {
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink);
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+
+.callout-text em {
+  font-style: italic;
+  color: var(--ochre-2);
+}
+
+/* ================ QUOTE ================ */
+.quote-block {
+  padding: 80px 0;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  margin: 60px auto;
+  max-width: 1000px;
+}
+
+.quote-text {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 2.8vw, 34px);
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin-bottom: 24px;
+}
+
+.quote-text em {
+  font-family: var(--font-serif);
+  color: var(--green);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.quote-attrib {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-5);
+}
+
+/* ================ SOLUTION PILLARS ================ */
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.pillar {
+  padding: 28px 28px 32px;
+  background: var(--paper-hi);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  transition: all 0.25s var(--ease);
+  position: relative;
+}
+
+.pillar:hover {
+  border-color: var(--ink-7);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.pillar-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+
+.pillar-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+
+.pillar-desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-4);
+}
+
+/* ================ LIVE LEAD ENRICHMENT DEMO ================ */
+.demo-wrap {
+  margin-top: 60px;
+  background: var(--paper-hi);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.demo-header {
+  padding: 12px 20px;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.03em;
+}
+
+.demo-header .cmd {
+  color: var(--green-3);
+}
+
+.demo-header .tag {
+  padding: 2px 8px;
+  background: var(--green);
+  color: var(--paper);
+  border-radius: 100px;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.demo-body {
+  padding: 32px;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 32px;
+}
+
+.demo-input-col label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-5);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.demo-input-field {
+  width: 100%;
+  padding: 11px 14px;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--ink);
+  margin-bottom: 14px;
+  transition: border-color 0.15s;
+}
+
+.demo-input-field:focus {
+  outline: none;
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px var(--green-softer);
+}
+
+.demo-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.demo-chip {
+  padding: 5px 10px;
+  background: var(--paper-2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-4);
+  transition: all 0.15s;
+  cursor: pointer;
+}
+
+.demo-chip:hover {
+  background: var(--paper-3);
+  color: var(--ink);
+  border-color: var(--border-2);
+}
+
+.demo-run-btn {
+  width: 100%;
+  padding: 12px;
+  background: var(--green);
+  color: var(--paper);
+  border-radius: var(--r);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.demo-run-btn:hover { background: var(--green-2); }
+.demo-run-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Demo output (terminal style) */
+.demo-output {
+  background: var(--ink);
+  border-radius: var(--r-2);
+  padding: 18px 20px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--ink-6);
+  min-height: 400px;
+  overflow-x: auto;
+}
+
+.demo-output .cmd-line {
+  color: var(--ink-6);
+  margin-bottom: 8px;
+}
+
+.demo-output .cmd-line::before {
+  content: '$ ';
+  color: var(--green-3);
+}
+
+.demo-output .processing {
+  color: var(--ochre);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0;
+}
+
+.demo-output .processing .spinner {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border: 1.5px solid var(--ochre);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.demo-output .result-block {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: rgba(15, 81, 50, 0.15);
+  border-left: 2px solid var(--green-3);
+  border-radius: 0 var(--r) var(--r) 0;
+  color: var(--paper);
+}
+
+.demo-output .result-block .line {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 0;
+}
+
+.demo-output .result-block .key {
+  color: var(--ink-5);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  min-width: 140px;
+}
+
+.demo-output .result-block .val {
+  color: var(--paper);
+  font-weight: 500;
+}
+
+.demo-output .result-block .val.green { color: var(--green-3); }
+.demo-output .result-block .val.ochre { color: #E5B84C; }
+
+.demo-output .result-block .divider {
+  height: 1px;
+  background: var(--ink-3);
+  margin: 10px 0;
+}
+
+.demo-output .icebreaker {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: rgba(184, 134, 11, 0.12);
+  border-left: 2px solid var(--ochre);
+  border-radius: 0 var(--r) var(--r) 0;
+  color: var(--paper);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: -0.005em;
+}
+
+.demo-output .icebreaker-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ochre);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.demo-output .success {
+  color: var(--green-3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-weight: 500;
+}
+
+/* ================ ARCHITECTURE ================ */
+.arch-panel {
+  background: var(--paper-hi);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  padding: 40px;
+  margin-top: 40px;
+  overflow: hidden;
+}
+
+.arch-svg {
+  width: 100%;
+  height: auto;
+  min-height: 380px;
+}
+
+.arch-node rect {
+  fill: var(--paper);
+  stroke: var(--border-2);
+  stroke-width: 1.2;
+  transition: all 0.25s;
+}
+
+.arch-node.active rect {
+  fill: var(--green-softer);
+  stroke: var(--green);
+  stroke-width: 1.5;
+}
+
+.arch-node:hover rect {
+  stroke: var(--green);
+  filter: drop-shadow(0 2px 6px rgba(15, 81, 50, 0.15));
+}
+
+.arch-node text {
+  fill: var(--ink);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.arch-node .sub {
+  fill: var(--ink-5);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+.arch-arrow {
+  fill: none;
+  stroke: var(--border-2);
+  stroke-width: 1.5;
+}
+
+.arch-arrow.flow {
+  stroke: var(--green);
+  stroke-dasharray: 5 4;
+  animation: flow 1.4s linear infinite;
+}
+
+@keyframes flow {
+  to { stroke-dashoffset: -18; }
+}
+
+/* Stack table */
+.stack-table {
+  margin-top: 40px;
+  background: var(--paper-hi);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  overflow: hidden;
+}
+
+.stack-row {
+  display: grid;
+  grid-template-columns: 60px 180px 1fr 100px;
+  gap: 20px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+  font-size: 13.5px;
+  transition: background 0.15s;
+}
+
+.stack-row:last-child { border-bottom: none; }
+.stack-row:hover { background: var(--paper-2); }
+
+.stack-row.header {
+  background: var(--paper-2);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-5);
+  font-weight: 500;
+}
+
+.stack-index {
+  font-family: var(--font-mono);
+  color: var(--ink-5);
+  font-size: 11.5px;
+}
+
+.stack-name {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.stack-desc {
+  color: var(--ink-4);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.stack-price {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--green);
+  font-weight: 500;
+  text-align: right;
+}
+
+.stack-price.free { color: var(--ink-5); }
+
+/* ================ RESULTS ================ */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  margin-top: 40px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  overflow: hidden;
+  background: var(--paper-hi);
+}
+
+.result-metric {
+  padding: 32px 28px;
+  border-right: 1px solid var(--border);
+  position: relative;
+}
+
+.result-metric:last-child { border-right: none; }
+
+.result-metric::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--green-3);
+}
+
+.result-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-5);
+  text-transform: uppercase;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.result-value {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 4.5vw, 56px);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+  color: var(--green);
+  margin-bottom: 10px;
+  font-feature-settings: 'ss01', 'tnum';
+}
+
+.result-value.ochre { color: var(--ochre); }
+.result-value.ink { color: var(--ink); }
+
+.result-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-5);
+  line-height: 1.5;
+}
+
+/* Bar chart — sales pipeline */
+.chart-panel {
+  margin-top: 40px;
+  background: var(--paper-hi);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  padding: 32px;
+}
+
+.chart-title {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.03em;
+  color: var(--ink-5);
+  margin-bottom: 4px;
+}
+
+.chart-title strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.chart-sub {
+  font-size: 12.5px;
+  color: var(--ink-5);
+  margin-bottom: 32px;
+}
+
+.chart-bars {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 14px;
+  align-items: end;
+  height: 240px;
+  position: relative;
+  padding-bottom: 36px;
+  border-bottom: 1px solid var(--border);
+}
+
+.chart-bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.chart-bar-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.chart-bar {
+  width: 100%;
+  background: var(--ink-6);
+  border-radius: 2px 2px 0 0;
+  transition: height 1s var(--ease);
+  min-height: 4px;
+}
+
+.chart-bar.green { background: var(--green); }
+
+.chart-bar-label {
+  position: absolute;
+  bottom: -24px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-5);
+  letter-spacing: 0.05em;
+}
+
+.chart-divider-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 36px;
+  width: 1px;
+  background: var(--border-2);
+  border-left: 1px dashed var(--border-2);
+}
+
+.chart-divider-label {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%) translateY(-20px);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 3px 8px;
+  background: var(--ink);
+  color: var(--paper);
+  letter-spacing: 0.08em;
+}
+
+/* ================ TIMELINE ================ */
+.timeline-panel {
+  margin-top: 40px;
+  background: var(--paper-hi);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  overflow: hidden;
+}
+
+.timeline-row {
+  display: grid;
+  grid-template-columns: 80px 130px 1fr 160px;
+  gap: 24px;
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border);
+  align-items: start;
+  transition: background 0.15s;
+}
+
+.timeline-row:last-child { border-bottom: none; }
+.timeline-row:hover { background: var(--paper-2); }
+
+.timeline-days {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--green);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.timeline-phase {
+  font-family: var(--font-display);
+  font-size: 15.5px;
+  font-weight: 500;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.timeline-desc {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--ink-4);
+}
+
+.timeline-status {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.timeline-status .badge {
+  padding: 3px 9px;
+  background: var(--green-soft);
+  color: var(--green);
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.timeline-status .milestone {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-5);
+}
+
+/* ================ GUARANTEES ================ */
+.guarantees-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-top: 40px;
+  background: var(--paper-hi);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  overflow: hidden;
+}
+
+.guarantee {
+  padding: 28px 28px 32px;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.guarantee:nth-child(3n) { border-right: none; }
+.guarantee:nth-last-child(-n+3) { border-bottom: none; }
+
+.guarantee-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--green);
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.guarantee-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  margin-bottom: 8px;
+  color: var(--ink);
+}
+
+.guarantee-desc {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink-4);
+}
+
+/* ================ CTA ================ */
+.cta {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 120px 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(247, 247, 245, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(247, 247, 245, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  pointer-events: none;
+}
+
+.cta-inner {
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.cta-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: rgba(45, 140, 94, 0.15);
+  border: 1px solid var(--green-3);
+  color: var(--green-3);
+  border-radius: 100px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  margin-bottom: 36px;
+  font-weight: 500;
+}
+
+.cta-badge::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green-3);
+  animation: pulse-dot 2s infinite;
+}
+
+.cta-title {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 5.5vw, 72px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  margin-bottom: 24px;
+  color: var(--paper);
+}
+
+.cta-title .em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--green-3);
+  font-weight: 400;
+}
+
+.cta-sub {
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink-6);
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 40px;
+}
+
+.cta-btn {
+  padding: 14px 26px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--r);
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: -0.005em;
+}
+
+.cta-btn.primary {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.cta-btn.primary:hover {
+  background: var(--green-3);
+  color: var(--paper);
+  transform: translateY(-1px);
+}
+
+.cta-btn.secondary {
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid var(--ink-4);
+}
+
+.cta-btn.secondary:hover {
+  border-color: var(--paper);
+  background: rgba(247, 247, 245, 0.05);
+}
+
+.cta-btn svg {
+  width: 14px; height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.cta-signature {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-5);
+  letter-spacing: 0.05em;
+}
+
+/* ================ FOOTER ================ */
+.footer {
+  padding: 40px;
+  background: var(--paper);
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--ink-5);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footer a { color: var(--ink-4); }
+.footer a:hover { color: var(--ink); }
+
+/* ================ REVEAL ================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-d1 { transition-delay: 0.1s; }
+.reveal-d2 { transition-delay: 0.2s; }
+.reveal-d3 { transition-delay: 0.3s; }
+
+/* ================ MOBILE ================ */
+@media (max-width: 960px) {
+  .cursor { display: none; }
+  body { cursor: auto; }
+  a, button { cursor: pointer !important; }
+
+  .topbar { height: 36px; padding: 0 14px; font-size: 10.5px; }
+  .topbar-right { display: none; }
+  .topbar-path { font-size: 10.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .nav {
+    top: 36px;
+    padding: 14px 20px;
+  }
+  .nav-right { gap: 0; }
+  .nav-link { display: none; }
+  .brand-sub { display: none; }
+
+  .hero {
+    padding: 120px 20px 60px;
+  }
+
+  .hero-meta-row { gap: 14px; font-size: 10.5px; flex-direction: column; padding-bottom: 14px; margin-bottom: 28px; }
+
+  .hero-snapshot-body { grid-template-columns: 1fr 1fr; }
+  .snap-item:nth-child(2) { border-right: none; }
+  .snap-item:nth-child(1),
+  .snap-item:nth-child(2) { border-bottom: 1px solid var(--border); }
+
+  .chapter-mark { grid-template-columns: 1fr; gap: 12px; padding: 60px 20px 24px; }
+
+  .section { padding: 20px 20px 80px; }
+
+  .two-col { grid-template-columns: 1fr; gap: 32px; }
+
+  .data-row { grid-template-columns: 160px 1fr 70px; padding: 12px 16px; }
+  .data-row .name { font-size: 13px; }
+
+  .demo-body { grid-template-columns: 1fr; padding: 20px; gap: 20px; }
+  .demo-output { font-size: 11px; min-height: 320px; }
+
+  .pillars-grid { grid-template-columns: 1fr; }
+
+  .results-grid { grid-template-columns: 1fr 1fr; }
+  .result-metric:nth-child(2) { border-right: none; }
+  .result-metric:nth-child(1),
+  .result-metric:nth-child(2) { border-bottom: 1px solid var(--border); }
+
+  .stack-row { grid-template-columns: 40px 1fr 80px; }
+  .stack-row .desc-col { display: none; }
+  .stack-row.header .desc-col { display: none; }
+
+  .chart-bars { grid-template-columns: repeat(8, 1fr); gap: 6px; height: 180px; }
+  .chart-bar-label { font-size: 9px; }
+
+  .timeline-row { grid-template-columns: 60px 1fr; gap: 14px; padding: 16px 20px; }
+  .timeline-row .timeline-phase,
+  .timeline-row .timeline-desc { grid-column: 2; }
+  .timeline-status { grid-column: 2; align-items: flex-start; text-align: left; }
+
+  .guarantees-grid { grid-template-columns: 1fr; }
+  .guarantee { border-right: none; }
+  .guarantee:last-child { border-bottom: none; }
+
+  .cta { padding: 80px 20px; }
+
+  .footer { flex-direction: column; text-align: center; gap: 8px; padding: 30px 20px; }
+
+  input, textarea { font-size: 16px !important; }
+}
+
+/* ================================================================
+   WHOA LAYER — split-screen hero + live dashboard + terminal stream
+   ================================================================ */
+
+/* HERO SPLIT LAYOUT */
+.hero-split {
+  display: grid;
+  grid-template-columns: 42% 58%;
+  gap: 0;
+  min-height: calc(100vh - 80px);
+  margin-top: 80px;
+  position: relative;
+}
+
+.hero-split-left {
+  padding: 80px 60px 100px 40px;
+  position: relative;
+  z-index: 2;
+  background: var(--paper);
+}
+
+.hero-split-right {
+  position: relative;
+  background: var(--ink);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--ink-3);
+}
+
+/* LIVE DASHBOARD (inside split-right) */
+.dash-wrap {
+  position: sticky;
+  top: 80px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: calc(100vh - 80px);
+  overflow: hidden;
+}
+
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--ink-3);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-6);
+  letter-spacing: 0.04em;
+}
+
+.dash-header .title {
+  color: var(--paper);
+  font-weight: 500;
+}
+
+.dash-header .live-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  background: rgba(45, 140, 94, 0.15);
+  border: 1px solid var(--green-3);
+  color: var(--green-3);
+  border-radius: 100px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dash-header .live-dot::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green-3);
+  animation: pulse-dot 1.5s infinite;
+}
+
+/* Grid of live metrics */
+.dash-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.dash-metric {
+  background: rgba(247, 247, 245, 0.03);
+  border: 1px solid var(--ink-3);
+  border-radius: var(--r-2);
+  padding: 14px 16px;
+  transition: all 0.3s;
+}
+
+.dash-metric:hover {
+  border-color: var(--green-3);
+  background: rgba(45, 140, 94, 0.04);
+}
+
+.dash-metric-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-5);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.dash-metric-value {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--paper);
+  letter-spacing: -0.025em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
+}
+
+.dash-metric-value.green { color: var(--green-3); }
+.dash-metric-value.ochre { color: #E5B84C; }
+
+.dash-metric-delta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--green-3);
+}
+
+.dash-metric-delta.down { color: var(--ink-5); }
+
+/* Sparkline chart */
+.dash-sparkline {
+  background: rgba(247, 247, 245, 0.03);
+  border: 1px solid var(--ink-3);
+  border-radius: var(--r-2);
+  padding: 14px 16px;
+  height: 110px;
+  position: relative;
+}
+
+.dash-sparkline-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-5);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.dash-sparkline-label .val {
+  color: var(--green-3);
+  font-weight: 600;
+}
+
+.dash-sparkline svg {
+  width: 100%;
+  height: 60px;
+}
+
+.dash-sparkline .path-main {
+  fill: none;
+  stroke: var(--green-3);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dash-sparkline .path-area {
+  fill: url(#sparkGrad);
+  opacity: 0.3;
+}
+
+/* Pipeline stages */
+.dash-pipeline {
+  background: rgba(247, 247, 245, 0.03);
+  border: 1px solid var(--ink-3);
+  border-radius: var(--r-2);
+  padding: 14px 16px;
+}
+
+.dash-pipeline-title {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-5);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.pipeline-stages {
+  display: flex;
+  gap: 4px;
+}
+
+.pipeline-stage {
+  flex: 1;
+  height: 28px;
+  border-radius: 3px;
+  background: rgba(247, 247, 245, 0.06);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--ink-5);
+  letter-spacing: 0.04em;
+  overflow: hidden;
+}
+
+.pipeline-stage::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0;
+  height: 100%;
+  background: var(--green);
+  transition: width 0.8s var(--ease);
+  opacity: 0.3;
+}
+
+.pipeline-stage span {
+  position: relative;
+  z-index: 1;
+}
+
+.pipeline-stage .count {
+  color: var(--paper);
+  font-weight: 600;
+  font-size: 10px;
+  margin-right: 2px;
+}
+
+/* Live log stream (inside dashboard too) */
+.dash-logs {
+  background: rgba(247, 247, 245, 0.03);
+  border: 1px solid var(--ink-3);
+  border-radius: var(--r-2);
+  padding: 12px 14px;
+  flex: 1;
+  min-height: 100px;
+  max-height: 200px;
+  overflow: hidden;
+  position: relative;
+}
+
+.dash-logs-title {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-5);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dash-logs-stream {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  line-height: 1.7;
+  color: var(--ink-6);
+  overflow: hidden;
+  max-height: 150px;
+}
+
+.log-line {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: logIn 0.4s var(--ease) forwards;
+  display: flex;
+  gap: 8px;
+  padding: 1px 0;
+  white-space: nowrap;
+}
+
+.log-time {
+  color: var(--ink-5);
+  flex-shrink: 0;
+}
+
+.log-tag {
+  color: var(--green-3);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.log-tag.ochre { color: #E5B84C; }
+.log-tag.muted { color: var(--ink-5); }
+
+.log-msg {
+  color: var(--ink-6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.log-msg .hl {
+  color: var(--paper);
+}
+
+@keyframes logIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Slack notif popup inside dashboard */
+.slack-popup {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  left: 16px;
+  background: var(--paper);
+  border-radius: var(--r-2);
+  padding: 12px 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  display: flex;
+  gap: 10px;
+  transform: translateY(-120%);
+  transition: transform 0.4s var(--ease);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.slack-popup.show {
+  transform: translateY(0);
+}
+
+.slack-popup-ico {
+  width: 28px; height: 28px;
+  border-radius: 5px;
+  background: #4A154B;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  font-family: var(--font-display);
+}
+
+.slack-popup-content {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+
+.slack-popup-content strong {
+  color: var(--ink);
+}
+
+.slack-popup-time {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-5);
+}
+
+/* TERMINAL STREAM (sticky bottom) */
+.terminal-stream {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 38px;
+  background: var(--ink);
+  border-top: 1px solid var(--ink-2);
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-6);
+  z-index: 95;
+  overflow: hidden;
+  transform: translateY(100%);
+  transition: transform 0.5s var(--ease);
+}
+
+.terminal-stream.visible {
+  transform: translateY(0);
+}
+
+.terminal-stream-prompt {
+  color: var(--green-3);
+  flex-shrink: 0;
+}
+
+.terminal-stream-content {
+  flex: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  letter-spacing: 0.02em;
+}
+
+.terminal-stream-content .hl-green { color: var(--green-3); }
+.terminal-stream-content .hl-ochre { color: #E5B84C; }
+.terminal-stream-content .hl-ink { color: var(--paper); }
+
+.terminal-stream-meta {
+  color: var(--ink-5);
+  font-size: 10px;
+  flex-shrink: 0;
+  display: flex;
+  gap: 14px;
+}
+
+.terminal-stream-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 14px;
+  background: var(--green-3);
+  margin-left: 4px;
+  animation: cursor-blink 1s infinite;
+  vertical-align: -2px;
+}
+
+@keyframes cursor-blink {
+  50% { opacity: 0; }
+}
+
+/* ARCHITECTURE INTERACTIVE MODAL */
+.arch-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 13, 13, 0.75);
+  backdrop-filter: blur(8px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--ease);
+}
+
+.arch-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.arch-modal-card {
+  background: var(--paper-hi);
+  border-radius: var(--r-3);
+  max-width: 720px;
+  width: 100%;
+  max-height: 85vh;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  transform: scale(0.96) translateY(8px);
+  transition: transform 0.3s var(--ease);
+  display: flex;
+  flex-direction: column;
+}
+
+.arch-modal.open .arch-modal-card {
+  transform: scale(1) translateY(0);
+}
+
+.arch-modal-header {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--paper-2);
+}
+
+.arch-modal-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.arch-modal-title .sub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-5);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+.arch-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-3);
+  transition: all 0.2s;
+}
+
+.arch-modal-close:hover {
+  background: var(--paper-3);
+  color: var(--ink);
+}
+
+.arch-modal-close svg {
+  width: 14px; height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.arch-modal-body {
+  overflow-y: auto;
+  padding: 28px;
+}
+
+.arch-modal-body p {
+  font-size: 14.5px;
+  line-height: 1.7;
+  color: var(--ink-3);
+  margin-bottom: 18px;
+}
+
+.arch-modal-body p strong {
+  color: var(--ink);
+}
+
+.arch-modal-code {
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: var(--r-2);
+  padding: 18px 20px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.7;
+  overflow-x: auto;
+  margin: 18px 0;
+}
+
+.arch-modal-code .kw { color: #7EC0B8; }
+.arch-modal-code .str { color: #E5B84C; }
+.arch-modal-code .num { color: #C4A8FF; }
+.arch-modal-code .com { color: var(--ink-5); font-style: italic; }
+.arch-modal-code .fn { color: var(--green-3); }
+
+.arch-modal-meta {
+  display: flex;
+  gap: 20px;
+  padding: 16px 0;
+  border-top: 1px solid var(--border);
+  margin-top: 18px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-5);
+  flex-wrap: wrap;
+}
+
+.arch-modal-meta .item {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.arch-modal-meta .item strong {
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* Architecture nodes become clickable */
+.arch-node {
+  cursor: pointer;
+  transition: transform 0.2s var(--ease);
+}
+
+.arch-node:hover {
+  transform: translateY(-1px);
+}
+
+.arch-node:hover rect {
+  filter: drop-shadow(0 4px 12px rgba(15, 81, 50, 0.25));
+}
+
+.arch-node::after {
+  display: none;
+}
+
+/* Mobile adjustments for whoa features */
+@media (max-width: 960px) {
+  .hero-split {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+  .hero-split-left {
+    padding: 40px 20px 60px;
+  }
+  .hero-split-right {
+    min-height: 500px;
+    border-left: none;
+    border-top: 1px solid var(--ink-3);
+  }
+  .dash-wrap {
+    position: static;
+    height: auto;
+    min-height: 500px;
+  }
+  .terminal-stream {
+    display: none;
+  }
+  .arch-modal {
+    padding: 20px;
+  }
+  .arch-modal-card {
+    max-height: 90vh;
+  }
+}
+
+/* Adjust body padding to account for terminal stream */
+body {
+  padding-bottom: 38px;
+}
+
+@media (max-width: 960px) {
+  body { padding-bottom: 0; }
+}
+/* END WHOA LAYER */
+
+/* ================ SCROLLBAR ================ */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--paper); }
+::-webkit-scrollbar-thumb { background: var(--ink-7); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+<a href="#main" class="skip-link">Skip to content</a>
+<div class="cursor" id="cursor"></div>
+
+<!-- TOP BAR -->
+<div class="topbar" role="banner">
+  <div class="topbar-dots"><span></span><span></span><span></span></div>
+  <div class="topbar-path">ivry.studio/<strong>case-studies/03/lead-enrichment</strong></div>
+  <div class="topbar-right">
+    <span class="status">system operational</span>
+    <span>v3.1.0</span>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav" aria-label="Main navigation" role="navigation">
+  <a href="#" class="brand" aria-label="Ivry Studio home">
+    <span class="brand-mark">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none">
+        <path d="M6 6 L6 18" stroke="#F7F7F5" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M11 6 L14 18 L17 6" stroke="#F7F7F5" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    <span class="brand-text">
+      <span class="mark">Ivry</span>
+      <span class="studio">Studio</span>
+    </span>
+    <span class="brand-sub">Case 03 · B2B Sales Ops</span>
+  </a>
+  <div class="nav-right">
+    <a class="nav-link">Case Studies</a>
+    <a class="nav-link">Services</a>
+    <a class="nav-link">About</a>
+    <a href="mailto:hello@ivry.studio" class="nav-cta" aria-label="Contact via email">
+      Get in touch
+      <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<main id="main">
+<div class="hero-split">
+  <!-- LEFT COLUMN: Narrative -->
+  <div class="hero-split-left">
+    <div class="hero-grid"></div>
+    <div class="hero-content" style="max-width:none;">
+      <div class="hero-meta-row">
+        <div class="item"><span class="label">CLIENT</span><span class="value">B2B SaaS</span></div>
+        <div class="item"><span class="label">SECTOR</span><span class="value">RevTech</span></div>
+        <div class="item"><span class="label">STATUS</span><span class="value green">shipped · live</span></div>
+      </div>
+
+      <h1 class="hero-title" style="font-size: clamp(38px, 4.5vw, 60px);">
+        How we built a pipeline that<br>
+        <span class="accent">qualifies 218 leads</span><br>
+        while their team <span class="em">sleeps</span>.
+      </h1>
+
+      <p class="hero-subtitle" style="font-size: 15.5px;">
+        A deterministic enrichment engine that takes any raw lead and returns a full sales-ready profile — score, icebreaker, routing — in under 9 seconds. Watch it run in real-time →
+      </p>
+
+      <div class="hero-ctas">
+        <a href="#demo" class="btn btn-primary">
+          See how it works
+          <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="mailto:hello@ivry.studio" class="btn btn-secondary">
+          Talk to Dylan directly
+        </a>
+      </div>
+
+      <div style="margin-top:60px; padding-top:32px; border-top:1px solid var(--border); display:flex; gap:32px; flex-wrap:wrap; font-family: var(--font-mono); font-size:11.5px; color: var(--ink-5);">
+        <div><span style="color:var(--ink-6)">TIMELINE</span> · <span style="color:var(--ink)">21 days</span></div>
+        <div><span style="color:var(--ink-6)">BUDGET</span> · <span style="color:var(--ink)">$4,200 fixed</span></div>
+        <div><span style="color:var(--ink-6)">TEAM</span> · <span style="color:var(--ink)">solo</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT COLUMN: Live Dashboard -->
+  <div class="hero-split-right">
+    <div class="dash-wrap">
+      <!-- Slack notif popup -->
+      <div class="slack-popup" id="slackPopup">
+        <div class="slack-popup-ico">#</div>
+        <div>
+          <div class="slack-popup-content">
+            <strong>#new-leads</strong><br>
+            New qualified · score <strong id="slackScore">94</strong>/100 · <strong id="slackCompany">Stripe</strong>
+          </div>
+          <div class="slack-popup-time" id="slackTime">just now</div>
+        </div>
+      </div>
+
+      <div class="dash-header">
+        <span class="title">ivry / lead_enrichment</span>
+        <span class="live-dot">LIVE</span>
+      </div>
+
+      <div class="dash-metrics">
+        <div class="dash-metric">
+          <div class="dash-metric-label">LEADS / DAY</div>
+          <div class="dash-metric-value" id="metricLeads">0</div>
+          <div class="dash-metric-delta">+18% vs avg</div>
+        </div>
+        <div class="dash-metric">
+          <div class="dash-metric-label">QUALIFIED %</div>
+          <div class="dash-metric-value green" id="metricQualified">0%</div>
+          <div class="dash-metric-delta">+4.2pt</div>
+        </div>
+        <div class="dash-metric">
+          <div class="dash-metric-label">AVG ENRICH TIME</div>
+          <div class="dash-metric-value ochre" id="metricTime">0s</div>
+          <div class="dash-metric-delta down">-21ms</div>
+        </div>
+        <div class="dash-metric">
+          <div class="dash-metric-label">API COST</div>
+          <div class="dash-metric-value" id="metricCost">$0.00</div>
+          <div class="dash-metric-delta down">within budget</div>
+        </div>
+      </div>
+
+      <!-- Sparkline -->
+      <div class="dash-sparkline">
+        <div class="dash-sparkline-label">
+          <span>QUALIFIED RATE · LAST 24H</span>
+          <span class="val" id="sparklineVal">41.3%</span>
+        </div>
+        <svg viewBox="0 0 400 60" preserveAspectRatio="none" id="sparklineSvg">
+          <defs>
+            <linearGradient id="sparkGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2D8C5E" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#2D8C5E" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path class="path-area" id="sparkArea" d=""></path>
+          <path class="path-main" id="sparkPath" d=""></path>
+        </svg>
+      </div>
+
+      <!-- Pipeline stages -->
+      <div class="dash-pipeline">
+        <div class="dash-pipeline-title">PIPELINE · 6 STAGES</div>
+        <div class="pipeline-stages" id="pipelineStages">
+          <div class="pipeline-stage" style="--pct:0.95"><span><span class="count">218</span>new</span></div>
+          <div class="pipeline-stage" style="--pct:0.72"><span><span class="count">157</span>enriched</span></div>
+          <div class="pipeline-stage" style="--pct:0.55"><span><span class="count">118</span>qualified</span></div>
+          <div class="pipeline-stage" style="--pct:0.38"><span><span class="count">82</span>routed</span></div>
+          <div class="pipeline-stage" style="--pct:0.22"><span><span class="count">48</span>contacted</span></div>
+          <div class="pipeline-stage" style="--pct:0.12"><span><span class="count">26</span>replied</span></div>
+        </div>
+      </div>
+
+      <!-- Live log stream -->
+      <div class="dash-logs">
+        <div class="dash-logs-title">
+          <span>EVENT STREAM</span>
+          <span style="color:var(--green-3)">● active</span>
+        </div>
+        <div class="dash-logs-stream" id="dashLogs" role="log" aria-live="polite" aria-label="Dashboard event log"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== CHAPTER 01 ========== -->
+<div class="chapter-mark">
+  <div class="chapter-num-block">
+    <div><span class="num">01</span> / 07</div>
+    <div class="line">The problem</div>
+  </div>
+  <h2 class="chapter-title">
+    Their reps were <span class="em">drowning</span> in leads —<br>
+    and missing the <span class="accent">ones that mattered.</span>
+  </h2>
+</div>
+
+<section class="section" role="region">
+  <div class="two-col">
+    <div class="prose reveal">
+      <p>A Series B B2B SaaS had just scaled their outbound machine. Ads, cold email, LinkedIn, content — leads were pouring in from 11 different sources at roughly <strong>240 inbound contacts per week</strong>.</p>
+      <p>Their 4-person SDR team was spending <strong>3 minutes per lead</strong> just enriching before they could even decide whether to reach out. 240 leads × 3 min = 12 hours per week of pure manual lookup work. Across 4 reps, that was 48 hours gone. One full-time role, burned on copy-paste.</p>
+      <p>Worse: by the time a qualified lead got touched, <strong>17 hours had passed on average</strong>. Competitors were closing the ones they wanted most.</p>
+    </div>
+
+    <!-- Data panel -->
+    <div class="data-panel reveal reveal-d1">
+      <div class="data-panel-header">
+        <span class="title">Lead qualification · time breakdown</span>
+        <span class="meta">weekly avg · pre-deployment</span>
+      </div>
+      <div class="data-row" style="--fill: 0.72;">
+        <div class="name">LinkedIn lookup<span class="sub">manual · 1 rep</span></div>
+        <div class="bar-container"><div class="bar red"></div></div>
+        <div class="value red">48 min</div>
+      </div>
+      <div class="data-row" style="--fill: 0.58;">
+        <div class="name">Company research<span class="sub">site + news</span></div>
+        <div class="bar-container"><div class="bar red"></div></div>
+        <div class="value red">38 min</div>
+      </div>
+      <div class="data-row" style="--fill: 0.42;">
+        <div class="name">CRM data entry<span class="sub">HubSpot</span></div>
+        <div class="bar-container"><div class="bar ochre"></div></div>
+        <div class="value ochre">28 min</div>
+      </div>
+      <div class="data-row" style="--fill: 0.35;">
+        <div class="name">Intent signals<span class="sub">G2 · Bombora</span></div>
+        <div class="bar-container"><div class="bar ochre"></div></div>
+        <div class="value ochre">24 min</div>
+      </div>
+      <div class="data-row" style="--fill: 0.22;">
+        <div class="name">Icebreaker drafting<span class="sub">custom · per lead</span></div>
+        <div class="bar-container"><div class="bar"></div></div>
+        <div class="value">15 min</div>
+      </div>
+      <div class="data-row" style="--fill: 0.10;">
+        <div class="name">Actual outreach<span class="sub">sending the message</span></div>
+        <div class="bar-container"><div class="bar green"></div></div>
+        <div class="value">7 min</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Callout -->
+  <div class="callout reveal">
+    <div class="callout-label">Hidden cost</div>
+    <div class="callout-text">
+      The VP of Sales put it bluntly: <em>"We're not running a sales team, we're running a data-entry sweatshop."</em> They were about to hire 2 more SDRs just to keep up — a $180K/year decision that wouldn't have fixed the underlying problem.
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<div class="section" style="padding-top: 0; padding-bottom: 0;">
+  <div class="quote-block reveal">
+    <p class="quote-text">
+      "By the time we'd enriched a lead, the <em>best ones were already in someone else's funnel</em>. We were doing the work. Someone else was getting the meetings."
+    </p>
+    <div class="quote-attrib">— VP OF SALES · B2B SAAS CLIENT</div>
+  </div>
+</div>
+
+<!-- ========== CHAPTER 02 ========== -->
+<div class="chapter-mark">
+  <div class="chapter-num-block">
+    <div><span class="num">02</span> / 07</div>
+    <div class="line">The approach</div>
+  </div>
+  <h2 class="chapter-title">
+    We treated enrichment as a<br>
+    <span class="accent">deterministic pipeline</span>, <span class="em">not a chatbot</span>.
+  </h2>
+</div>
+
+<section class="section">
+  <div class="prose reveal" style="max-width: 760px; margin-bottom: 16px;">
+    <p>Most "AI sales tools" are glorified chat wrappers. We went the other direction: a deterministic, auditable pipeline where every step has a clear input, a measurable output, and a cost in dollars. Sales ops teams can audit every single enrichment run.</p>
+  </div>
+
+  <div class="pillars-grid">
+    <div class="pillar reveal">
+      <div class="pillar-num">01 / PRINCIPLE</div>
+      <div class="pillar-title">Data first, LLM second</div>
+      <div class="pillar-desc">Structured data sources (Clearbit, Apollo, LinkedIn API) run before Claude ever sees the lead. The LLM synthesizes — it doesn't hallucinate facts.</div>
+    </div>
+    <div class="pillar reveal reveal-d1">
+      <div class="pillar-num">02 / PRINCIPLE</div>
+      <div class="pillar-title">Every output is traceable</div>
+      <div class="pillar-desc">Every enriched field has a source attribution. Every score has a reasoning log. Reps can click a cell and see exactly why.</div>
+    </div>
+    <div class="pillar reveal reveal-d2">
+      <div class="pillar-num">03 / PRINCIPLE</div>
+      <div class="pillar-title">Humans make the final call</div>
+      <div class="pillar-desc">The pipeline proposes routing, scoring, and icebreaker drafts. A rep approves in one click — or rejects with one keystroke. Learning loop built in.</div>
+    </div>
+    <div class="pillar reveal reveal-d3">
+      <div class="pillar-num">04 / PRINCIPLE</div>
+      <div class="pillar-title">Costs are visible, per lead</div>
+      <div class="pillar-desc">Every enrichment costs ~$0.08 in API fees. Dashboard shows exact spend per rep, per source, per day. No black boxes.</div>
+    </div>
+  </div>
+
+  <!-- LIVE DEMO -->
+  <div id="demo" class="demo-wrap reveal" style="margin-top: 60px;">
+    <div class="demo-header">
+      <span class="cmd">$ enrichment_pipeline --live</span>
+      <span class="tag">interactive demo</span>
+    </div>
+    <div class="demo-body">
+      <div class="demo-input-col">
+        <label>TARGET LEAD</label>
+        <input class="demo-input-field" id="demoEmail" type="text" placeholder="sarah.chen@stripe.com" value="sarah.chen@stripe.com">
+
+        <label>ENRICHMENT DEPTH</label>
+        <input class="demo-input-field" id="demoDepth" type="text" value="full (10 sources · Claude synth)" readonly>
+
+        <div class="demo-examples">
+          <button class="demo-chip" data-example="1">try: SaaS exec</button>
+          <button class="demo-chip" data-example="2">try: small biz owner</button>
+          <button class="demo-chip" data-example="3">try: agency founder</button>
+        </div>
+
+        <button class="demo-run-btn" id="demoRun" aria-label="Run lead enrichment demo">Run enrichment →</button>
+      </div>
+
+      <div class="demo-output" id="demoOutput">
+        <div class="cmd-line">ready · awaiting target</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CHAPTER 03 ========== -->
+<div class="chapter-mark">
+  <div class="chapter-num-block">
+    <div><span class="num">03</span> / 07</div>
+    <div class="line">The architecture</div>
+  </div>
+  <h2 class="chapter-title">
+    Six nodes. Ten sources.<br>
+    <span class="em">Zero vendor lock-in.</span>
+  </h2>
+</div>
+
+<section class="section">
+  <div class="arch-panel reveal">
+    <svg class="arch-svg" viewBox="0 0 1100 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <polygon points="0,0 10,5 0,10" fill="#0F5132"/>
+        </marker>
+        <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+          <polygon points="0,0 10,5 0,10" fill="#8B8680"/>
+        </marker>
+      </defs>
+
+      <!-- NODE 1: Webhook -->
+      <g class="arch-node">
+        <rect x="30" y="160" width="150" height="80" rx="6"/>
+        <text x="105" y="195" text-anchor="middle">Inbound Webhook</text>
+        <text x="105" y="215" text-anchor="middle" class="sub">form · CRM · LI</text>
+      </g>
+
+      <!-- NODE 2: Data enrichers (3 parallel) -->
+      <g class="arch-node">
+        <rect x="240" y="40" width="180" height="70" rx="6"/>
+        <text x="330" y="72" text-anchor="middle">Clearbit + Apollo</text>
+        <text x="330" y="92" text-anchor="middle" class="sub">company data</text>
+      </g>
+      <g class="arch-node">
+        <rect x="240" y="165" width="180" height="70" rx="6"/>
+        <text x="330" y="197" text-anchor="middle">LinkedIn API</text>
+        <text x="330" y="217" text-anchor="middle" class="sub">profile + activity</text>
+      </g>
+      <g class="arch-node">
+        <rect x="240" y="290" width="180" height="70" rx="6"/>
+        <text x="330" y="322" text-anchor="middle">G2 + Bombora</text>
+        <text x="330" y="342" text-anchor="middle" class="sub">intent signals</text>
+      </g>
+
+      <!-- NODE 3: Claude synth -->
+      <g class="arch-node active">
+        <rect x="480" y="160" width="180" height="80" rx="6"/>
+        <text x="570" y="195" text-anchor="middle">Claude Sonnet 4.5</text>
+        <text x="570" y="215" text-anchor="middle" class="sub">synth + score + icebreaker</text>
+      </g>
+
+      <!-- NODE 4: Router -->
+      <g class="arch-node active">
+        <rect x="720" y="160" width="160" height="80" rx="6"/>
+        <text x="800" y="195" text-anchor="middle">Rules Engine</text>
+        <text x="800" y="215" text-anchor="middle" class="sub">routing logic</text>
+      </g>
+
+      <!-- NODE 5-7: outputs -->
+      <g class="arch-node">
+        <rect x="930" y="40" width="150" height="70" rx="6"/>
+        <text x="1005" y="72" text-anchor="middle">HubSpot</text>
+        <text x="1005" y="92" text-anchor="middle" class="sub">create + enrich</text>
+      </g>
+      <g class="arch-node">
+        <rect x="930" y="165" width="150" height="70" rx="6"/>
+        <text x="1005" y="197" text-anchor="middle">Slack</text>
+        <text x="1005" y="217" text-anchor="middle" class="sub">#new-leads</text>
+      </g>
+      <g class="arch-node">
+        <rect x="930" y="290" width="150" height="70" rx="6"/>
+        <text x="1005" y="322" text-anchor="middle">Attio + Linear</text>
+        <text x="1005" y="342" text-anchor="middle" class="sub">task · follow-up</text>
+      </g>
+
+      <!-- Arrows -->
+      <path class="arch-arrow flow" d="M 180 195 L 210 75 Q 225 75 240 75" marker-end="url(#arr)"/>
+      <path class="arch-arrow flow" d="M 180 200 L 240 200" marker-end="url(#arr)"/>
+      <path class="arch-arrow flow" d="M 180 205 L 210 325 Q 225 325 240 325" marker-end="url(#arr)"/>
+
+      <path class="arch-arrow flow" d="M 420 75 L 450 195 Q 465 195 480 195" marker-end="url(#arr)"/>
+      <path class="arch-arrow flow" d="M 420 200 L 480 200" marker-end="url(#arr)"/>
+      <path class="arch-arrow flow" d="M 420 325 L 450 205 Q 465 205 480 205" marker-end="url(#arr)"/>
+
+      <path class="arch-arrow flow" d="M 660 200 L 720 200" marker-end="url(#arr)"/>
+
+      <path class="arch-arrow" d="M 880 195 L 910 75 Q 920 75 930 75" marker-end="url(#arr2)"/>
+      <path class="arch-arrow" d="M 880 200 L 930 200" marker-end="url(#arr2)"/>
+      <path class="arch-arrow" d="M 880 205 L 910 325 Q 920 325 930 325" marker-end="url(#arr2)"/>
+    </svg>
+  </div>
+
+  <!-- STACK TABLE -->
+  <div class="stack-table">
+    <div class="stack-row header">
+      <div>#</div>
+      <div>TOOL</div>
+      <div class="desc-col">PURPOSE</div>
+      <div style="text-align:right">COST / MO</div>
+    </div>
+    <div class="stack-row reveal">
+      <div class="stack-index">01</div>
+      <div class="stack-name">Claude Sonnet 4.5</div>
+      <div class="stack-desc desc-col">Synthesizes structured data into scored, narrative lead profile + drafts icebreaker copy in rep's tone.</div>
+      <div class="stack-price">~$85</div>
+    </div>
+    <div class="stack-row reveal">
+      <div class="stack-index">02</div>
+      <div class="stack-name">n8n (self-hosted)</div>
+      <div class="stack-desc desc-col">Orchestrates the whole pipeline. Running on Railway for the client. They own it.</div>
+      <div class="stack-price">$5</div>
+    </div>
+    <div class="stack-row reveal">
+      <div class="stack-index">03</div>
+      <div class="stack-name">Clearbit + Apollo</div>
+      <div class="stack-desc desc-col">Company firmographics + technographics. Run in parallel to cover each other's blind spots.</div>
+      <div class="stack-price">$149</div>
+    </div>
+    <div class="stack-row reveal">
+      <div class="stack-index">04</div>
+      <div class="stack-name">LinkedIn Sales Nav API</div>
+      <div class="stack-desc desc-col">Individual profile depth + recent activity. Signals we use: job changes, post engagement.</div>
+      <div class="stack-price">$99</div>
+    </div>
+    <div class="stack-row reveal">
+      <div class="stack-index">05</div>
+      <div class="stack-name">G2 + Bombora</div>
+      <div class="stack-desc desc-col">Intent signals. We only use G2 — Bombora is optional. Adds $0.04/lead if enabled.</div>
+      <div class="stack-price">$49</div>
+    </div>
+    <div class="stack-row reveal">
+      <div class="stack-index">06</div>
+      <div class="stack-name">HubSpot API</div>
+      <div class="stack-desc desc-col">Create contact + company + deal automatically. Deduplicates against existing records.</div>
+      <div class="stack-price free">existing</div>
+    </div>
+    <div class="stack-row reveal">
+      <div class="stack-index">07</div>
+      <div class="stack-name">Slack API</div>
+      <div class="stack-desc desc-col">Rich message blocks in #new-leads. Assigned AE can accept/reject with emoji reactions.</div>
+      <div class="stack-price free">free</div>
+    </div>
+    <div class="stack-row reveal">
+      <div class="stack-index">08</div>
+      <div class="stack-name">Attio + Linear</div>
+      <div class="stack-desc desc-col">Creates follow-up tasks automatically. Dies gracefully if either is down.</div>
+      <div class="stack-price free">existing</div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CHAPTER 04 ========== -->
+<div class="chapter-mark">
+  <div class="chapter-num-block">
+    <div><span class="num">04</span> / 07</div>
+    <div class="line">The results</div>
+  </div>
+  <h2 class="chapter-title">
+    90 days in production.<br>
+    <span class="accent"><span class="em">Every</span> number moved.</span>
+  </h2>
+</div>
+
+<section class="section">
+  <div class="results-grid">
+    <div class="result-metric">
+      <div class="result-label">QUALIFIED LEADS / WK</div>
+      <div class="result-value">218</div>
+      <div class="result-sub">up from 60 · +263%</div>
+    </div>
+    <div class="result-metric">
+      <div class="result-label">AVG TIME TO TOUCH</div>
+      <div class="result-value ochre">41 min</div>
+      <div class="result-sub">was 17 hours · -96%</div>
+    </div>
+    <div class="result-metric">
+      <div class="result-label">QUALIFIED RATE</div>
+      <div class="result-value">41.3%</div>
+      <div class="result-sub">baseline 14.7% · +2.8×</div>
+    </div>
+    <div class="result-metric">
+      <div class="result-label">PIPELINE IMPACT</div>
+      <div class="result-value ink">+$142K</div>
+      <div class="result-sub">attributed MRR · Q1</div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-panel reveal">
+    <div class="chart-title"><strong>Weekly qualified leads</strong> · 90-day window</div>
+    <div class="chart-sub">Before / after deployment · measured from HubSpot CRM · excludes duplicates</div>
+
+    <div class="chart-bars">
+      <div class="chart-bar-col">
+        <div class="chart-bar-val">58</div>
+        <div class="chart-bar" style="height: 14%"></div>
+        <div class="chart-bar-label">W -4</div>
+      </div>
+      <div class="chart-bar-col">
+        <div class="chart-bar-val">62</div>
+        <div class="chart-bar" style="height: 15%"></div>
+        <div class="chart-bar-label">W -3</div>
+      </div>
+      <div class="chart-bar-col">
+        <div class="chart-bar-val">64</div>
+        <div class="chart-bar" style="height: 16%"></div>
+        <div class="chart-bar-label">W -2</div>
+      </div>
+      <div class="chart-bar-col">
+        <div class="chart-bar-val">56</div>
+        <div class="chart-bar" style="height: 14%"></div>
+        <div class="chart-bar-label">W -1</div>
+      </div>
+      <div class="chart-bar-col">
+        <div class="chart-divider-line"></div>
+        <div class="chart-divider-label">DEPLOY</div>
+        <div class="chart-bar-val">148</div>
+        <div class="chart-bar green" style="height: 42%"></div>
+        <div class="chart-bar-label">W 1</div>
+      </div>
+      <div class="chart-bar-col">
+        <div class="chart-bar-val">187</div>
+        <div class="chart-bar green" style="height: 58%"></div>
+        <div class="chart-bar-label">W 2</div>
+      </div>
+      <div class="chart-bar-col">
+        <div class="chart-bar-val">205</div>
+        <div class="chart-bar green" style="height: 72%"></div>
+        <div class="chart-bar-label">W 3</div>
+      </div>
+      <div class="chart-bar-col">
+        <div class="chart-bar-val">218</div>
+        <div class="chart-bar green" style="height: 85%"></div>
+        <div class="chart-bar-label">W 4</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<div class="section" style="padding: 0;">
+  <div class="quote-block reveal">
+    <p class="quote-text">
+      "We were about to hire two more SDRs to keep up. Instead, we spent <em>a fifth of that</em> with Dylan — and now our best rep qualifies more leads in a morning than our whole team used to in a week. Honestly, it's not close."
+    </p>
+    <div class="quote-attrib">— VP OF SALES · (ANONYMIZED) B2B SAAS · $18M ARR</div>
+  </div>
+</div>
+
+<!-- ========== CHAPTER 05 ========== -->
+<div class="chapter-mark">
+  <div class="chapter-num-block">
+    <div><span class="num">05</span> / 07</div>
+    <div class="line">The process</div>
+  </div>
+  <h2 class="chapter-title">
+    21 days. Four milestones.<br>
+    <span class="accent">Every invoice tied to a deliverable.</span>
+  </h2>
+</div>
+
+<section class="section">
+  <div class="timeline-panel">
+    <div class="timeline-row reveal">
+      <div class="timeline-days">DAY 1–3</div>
+      <div class="timeline-phase">Audit & scoping</div>
+      <div class="timeline-desc">Shadowed 3 SDRs for a full day each. Mapped the exact steps they took, where they stalled, what data they looked up first. No slide decks — just observation.</div>
+      <div class="timeline-status">
+        <span class="badge">milestone 1</span>
+        <span class="milestone">20% · $840</span>
+      </div>
+    </div>
+    <div class="timeline-row reveal">
+      <div class="timeline-days">DAY 4–10</div>
+      <div class="timeline-phase">Core pipeline build</div>
+      <div class="timeline-desc">Built the 10-source enrichment engine on n8n. Claude Sonnet 4.5 prompts locked after 3 iterations. First run on live leads at day 8.</div>
+      <div class="timeline-status">
+        <span class="badge">milestone 2</span>
+        <span class="milestone">35% · $1,470</span>
+      </div>
+    </div>
+    <div class="timeline-row reveal">
+      <div class="timeline-days">DAY 11–16</div>
+      <div class="timeline-phase">CRM + Slack integration</div>
+      <div class="timeline-desc">Deep HubSpot integration with dedup logic. Slack cards with one-click accept/reject. Feedback loop wired back into the scoring model.</div>
+      <div class="timeline-status">
+        <span class="badge">milestone 3</span>
+        <span class="milestone">25% · $1,050</span>
+      </div>
+    </div>
+    <div class="timeline-row reveal">
+      <div class="timeline-days">DAY 17–21</div>
+      <div class="timeline-phase">Handover & training</div>
+      <div class="timeline-desc">Training session with the sales team. Runbook. Dashboard with per-rep metrics. 45 days of post-launch support included.</div>
+      <div class="timeline-status">
+        <span class="badge">milestone 4</span>
+        <span class="milestone">20% · $840</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== CHAPTER 06 ========== -->
+<div class="chapter-mark">
+  <div class="chapter-num-block">
+    <div><span class="num">06</span> / 07</div>
+    <div class="line">Guarantees</div>
+  </div>
+  <h2 class="chapter-title">
+    We stake our fee on <span class="accent">your outcome.</span>
+  </h2>
+</div>
+
+<section class="section">
+  <div class="guarantees-grid">
+    <div class="guarantee reveal">
+      <div class="guarantee-num">01 / GUARANTEE</div>
+      <div class="guarantee-title">Fixed fee, not hourly</div>
+      <div class="guarantee-desc">$4,200 total, across 4 milestones. Scope is locked in writing on day 3. No surprises, no "oh this will take more time" emails.</div>
+    </div>
+    <div class="guarantee reveal">
+      <div class="guarantee-num">02 / GUARANTEE</div>
+      <div class="guarantee-title">2× lead volume or refund</div>
+      <div class="guarantee-desc">If qualified lead throughput doesn't at least double within 45 days of deployment, we refund the final milestone. No bureaucracy.</div>
+    </div>
+    <div class="guarantee reveal">
+      <div class="guarantee-num">03 / GUARANTEE</div>
+      <div class="guarantee-title">You own everything</div>
+      <div class="guarantee-desc">Every prompt, every workflow, every line of config. Hosted on your infra. Any engineer can take it over if we get hit by a bus.</div>
+    </div>
+    <div class="guarantee reveal">
+      <div class="guarantee-num">04 / GUARANTEE</div>
+      <div class="guarantee-title">Full cost transparency</div>
+      <div class="guarantee-desc">Dashboard shows exact API spend per lead, per day, per source. You always know what you're paying for. No black boxes.</div>
+    </div>
+    <div class="guarantee reveal">
+      <div class="guarantee-num">05 / GUARANTEE</div>
+      <div class="guarantee-title">45-day post-launch support</div>
+      <div class="guarantee-desc">Every bug, every edge case, every "can we tweak this thing" for 45 days after go-live. Included in the fixed price — no retainer nonsense.</div>
+    </div>
+    <div class="guarantee reveal">
+      <div class="guarantee-num">06 / GUARANTEE</div>
+      <div class="guarantee-title">Pilot option</div>
+      <div class="guarantee-desc">Not sure? Start with a 5-day pilot at $800. If you hate it, we stop. If you love it, we credit the $800 against the full project.</div>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- CTA -->
+<section class="cta">
+  <div class="cta-inner">
+    <div class="cta-badge">
+      2 build slots open · May 2026
+    </div>
+    <h2 class="cta-title">
+      Your sales team deserves<br>
+      to be <span class="em">closing</span>, not looking up.
+    </h2>
+    <p class="cta-sub">
+      If your reps are spending more than 2 hours a week enriching leads manually, we can probably fix it in under 3 weeks. Honest 20-minute call first — no pitch deck.
+    </p>
+    <div class="cta-buttons">
+      <a href="mailto:hello@ivry.studio" class="cta-btn primary">
+        Start the conversation
+        <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="#" class="cta-btn secondary">Back to portfolio</a>
+    </div>
+    <div class="cta-signature">
+      Dylan Maillet · Ivry Studio · hello@ivry.studio
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div>Ivry Studio · Case study 03 / 07 · lead-enrichment</div>
+  <div><a href="mailto:hello@ivry.studio">hello@ivry.studio</a> · Built in 21 days · Shipped May 2026</div>
+</footer>
+
+<!-- TERMINAL STREAM (sticky bottom) -->
+<div class="terminal-stream" id="terminalStream" role="log" aria-live="polite" aria-label="Live event stream">
+  <span class="terminal-stream-prompt">ivry@pipeline ~$</span>
+  <span class="terminal-stream-content" id="terminalContent"></span>
+  <span class="terminal-stream-meta">
+    <span id="terminalMetaLeads">0 leads</span>
+    <span style="color:var(--green-3)">● live</span>
+  </span>
+</div>
+
+<!-- ARCHITECTURE MODAL -->
+<div class="arch-modal" id="archModal">
+  <div class="arch-modal-card">
+    <div class="arch-modal-header">
+      <div class="arch-modal-title">
+        <span id="archModalTitle">Node name</span>
+        <span class="sub" id="archModalSubtitle">node subtitle</span>
+      </div>
+      <button class="arch-modal-close" onclick="closeArchModal()" aria-label="Close">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="arch-modal-body" id="archModalBody">
+      content here
+    </div>
+  </div>
+</div>
+
+<script>
+// ============ UTILS ============
+function rafThrottle(fn) {
+  let raf = null, args = null;
+  return function(...a) {
+    args = a;
+    if (raf) return;
+    raf = requestAnimationFrame(() => { fn.apply(this, args); raf = null; });
+  };
+}
+
+const isTouch = window.matchMedia('(pointer: coarse)').matches;
+
+// ============ CUSTOM CURSOR ============
+if (!isTouch) {
+  const cursor = document.getElementById('cursor');
+  let activated = false;
+  const move = rafThrottle(e => {
+    if (!activated) { cursor.classList.add('active'); activated = true; }
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+  });
+  document.addEventListener('mousemove', move, { passive: true });
+
+  document.querySelectorAll('a, button, .pillar, .stack-row, .data-row, .timeline-row, .guarantee, .arch-node, .demo-chip').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+  });
+}
+
+// ============ REVEAL ON SCROLL ============
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      if (e.target.classList.contains('data-panel')) {
+        e.target.querySelectorAll('.data-row').forEach((row, i) => {
+          setTimeout(() => row.classList.add('revealed'), i * 80);
+        });
+      }
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+// ============ LIVE DASHBOARD — Counters ticker ============
+const LEAD_STATE = {
+  leads: 1247,
+  qualified: 41.3,
+  time: 8.6,
+  cost: 87.42
+};
+
+function animateCounter(el, target, opts = {}) {
+  const { suffix = '', prefix = '', decimals = 0, duration = 1600 } = opts;
+  if (!el) return;
+  const start = performance.now();
+  const initial = parseFloat(el.textContent.replace(/[^\d.-]/g, '')) || 0;
+  const anim = (t) => {
+    const p = Math.min((t - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 4);
+    const val = initial + (target - initial) * eased;
+    const formatted = decimals > 0 ? val.toFixed(decimals) : Math.floor(val).toLocaleString();
+    el.textContent = prefix + formatted + suffix;
+    if (p < 1) requestAnimationFrame(anim);
+  };
+  requestAnimationFrame(anim);
+}
+
+// Initial animation on load
+setTimeout(() => {
+  animateCounter(document.getElementById('metricLeads'), LEAD_STATE.leads);
+  animateCounter(document.getElementById('metricQualified'), LEAD_STATE.qualified, { suffix: '%', decimals: 1 });
+  animateCounter(document.getElementById('metricTime'), LEAD_STATE.time, { suffix: 's', decimals: 1 });
+  animateCounter(document.getElementById('metricCost'), LEAD_STATE.cost, { prefix: '$', decimals: 2 });
+}, 600);
+
+// Periodic updates to feel alive
+setInterval(() => {
+  LEAD_STATE.leads += Math.floor(Math.random() * 4) + 1;
+  LEAD_STATE.qualified += (Math.random() - 0.45) * 0.4;
+  LEAD_STATE.qualified = Math.max(39, Math.min(44, LEAD_STATE.qualified));
+  LEAD_STATE.time += (Math.random() - 0.5) * 0.3;
+  LEAD_STATE.time = Math.max(7.8, Math.min(9.4, LEAD_STATE.time));
+  LEAD_STATE.cost += (Math.random() * 0.08);
+
+  const leadsEl = document.getElementById('metricLeads');
+  const qualEl = document.getElementById('metricQualified');
+  const timeEl = document.getElementById('metricTime');
+  const costEl = document.getElementById('metricCost');
+  if (leadsEl) leadsEl.textContent = LEAD_STATE.leads.toLocaleString();
+  if (qualEl) qualEl.textContent = LEAD_STATE.qualified.toFixed(1) + '%';
+  if (timeEl) timeEl.textContent = LEAD_STATE.time.toFixed(1) + 's';
+  if (costEl) costEl.textContent = '$' + LEAD_STATE.cost.toFixed(2);
+
+  const termLeads = document.getElementById('terminalMetaLeads');
+  if (termLeads) termLeads.textContent = LEAD_STATE.leads.toLocaleString() + ' leads';
+}, 2600);
+
+// ============ SPARKLINE (respiring) ============
+function renderSparkline() {
+  const path = document.getElementById('sparkPath');
+  const area = document.getElementById('sparkArea');
+  const val = document.getElementById('sparklineVal');
+  if (!path) return;
+
+  const W = 400, H = 60;
+  const points = 32;
+  const data = [];
+  for (let i = 0; i < points; i++) {
+    // Trending up with organic variance
+    const base = 0.4 + (i / points) * 0.2;
+    const noise = Math.sin(i * 0.7 + Date.now() * 0.0008) * 0.08;
+    const noise2 = Math.sin(i * 1.3 + Date.now() * 0.0015) * 0.05;
+    data.push(base + noise + noise2);
+  }
+
+  const pts = data.map((v, i) => {
+    const x = (i / (points - 1)) * W;
+    const y = H - (v * H);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+
+  path.setAttribute('d', `M ${pts.join(' L ')}`);
+  area.setAttribute('d', `M 0,${H} L ${pts.join(' L ')} L ${W},${H} Z`);
+
+  // Update value
+  if (val) {
+    const last = data[data.length - 1];
+    val.textContent = (last * 100).toFixed(1) + '%';
+  }
+}
+
+renderSparkline();
+setInterval(renderSparkline, 2000);
+
+// ============ LIVE LOGS STREAM (in dashboard) ============
+const LOG_SAMPLES = [
+  { tag: 'enriched', company: 'Stripe', score: 94, time: '8.3s' },
+  { tag: 'qualified', company: 'Figma', score: 87, time: '7.9s' },
+  { tag: 'routed', company: 'Notion', score: 91, rep: 'marco' },
+  { tag: 'icebreaker', company: 'Vercel', score: 96, time: '9.1s' },
+  { tag: 'enriched', company: 'Linear', score: 82, time: '8.5s' },
+  { tag: 'replied', company: 'Attio', rep: 'julia' },
+  { tag: 'enriched', company: 'Resend', score: 89, time: '8.2s' },
+  { tag: 'qualified', company: 'Cal.com', score: 93, time: '7.8s' },
+  { tag: 'routed', company: 'Dub.co', score: 88, rep: 'alex' },
+  { tag: 'enriched', company: 'Anthropic', score: 97, time: '8.6s' },
+  { tag: 'icebreaker', company: 'Supabase', score: 85, time: '9.3s' },
+  { tag: 'qualified', company: 'Raycast', score: 91, time: '8.0s' },
+  { tag: 'enriched', company: 'Pitch', score: 79, time: '8.8s' },
+  { tag: 'routed', company: 'Arc Browser', score: 92, rep: 'marco' },
+];
+
+const TAG_COLORS = {
+  enriched: 'muted',
+  qualified: '',
+  routed: 'ochre',
+  icebreaker: 'ochre',
+  replied: ''
+};
+
+function addLogLine() {
+  const stream = document.getElementById('dashLogs');
+  const termContent = document.getElementById('terminalContent');
+  if (!stream) return;
+
+  const sample = LOG_SAMPLES[Math.floor(Math.random() * LOG_SAMPLES.length)];
+  const now = new Date();
+  const time = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+
+  let msg = '';
+  if (sample.tag === 'enriched') {
+    msg = `<span class="hl">${sample.company}</span> · score <span class="hl">${sample.score}</span> · ${sample.time}`;
+  } else if (sample.tag === 'qualified') {
+    msg = `<span class="hl">${sample.company}</span> → enterprise tier · ${sample.score}/100`;
+  } else if (sample.tag === 'routed') {
+    msg = `<span class="hl">${sample.company}</span> → @${sample.rep} · #new-leads`;
+  } else if (sample.tag === 'icebreaker') {
+    msg = `<span class="hl">${sample.company}</span> · draft ready · tone matched`;
+  } else if (sample.tag === 'replied') {
+    msg = `<span class="hl">${sample.company}</span> responded · @${sample.rep}`;
+  }
+
+  const tagClass = TAG_COLORS[sample.tag] || '';
+  const line = document.createElement('div');
+  line.className = 'log-line';
+  line.innerHTML = `
+    <span class="log-time">${time}</span>
+    <span class="log-tag ${tagClass}">[${sample.tag}]</span>
+    <span class="log-msg">${msg}</span>
+  `;
+
+  stream.insertBefore(line, stream.firstChild);
+  while (stream.children.length > 8) stream.removeChild(stream.lastChild);
+
+  // Terminal stream (bottom)
+  if (termContent) {
+    termContent.innerHTML = `<span class="hl-green">[${sample.tag}]</span> ${sample.company} ${sample.score ? '· score <span class="hl-ochre">' + sample.score + '</span>' : ''} ${sample.time ? '· <span class="hl-ink">' + sample.time + '</span>' : ''} ${sample.rep ? '· routed to <span class="hl-ink">@' + sample.rep + '</span>' : ''}<span class="terminal-stream-cursor"></span>`;
+  }
+
+  // Occasionally trigger Slack popup
+  if (sample.tag === 'qualified' && Math.random() > 0.5) {
+    triggerSlackPopup(sample.company, sample.score);
+  }
+}
+
+function triggerSlackPopup(company, score) {
+  const popup = document.getElementById('slackPopup');
+  if (!popup) return;
+  document.getElementById('slackCompany').textContent = company;
+  document.getElementById('slackScore').textContent = score;
+  document.getElementById('slackTime').textContent = 'just now';
+  popup.classList.add('show');
+  setTimeout(() => popup.classList.remove('show'), 3200);
+}
+
+// Start log stream
+setTimeout(() => {
+  // Prime with 4 logs
+  for (let i = 0; i < 4; i++) setTimeout(() => addLogLine(), i * 200);
+  setInterval(addLogLine, 2400);
+}, 1000);
+
+// ============ TERMINAL STREAM VISIBILITY ============
+// Show terminal after initial load
+setTimeout(() => {
+  const term = document.getElementById('terminalStream');
+  if (term) term.classList.add('visible');
+}, 1400);
+
+// ============ ARCHITECTURE MODAL ============
+const ARCH_NODES = {
+  'webhook': {
+    title: 'Inbound Webhook',
+    subtitle: 'n8n entry point · form + CRM + LinkedIn',
+    body: `
+      <p>Every new lead triggers this webhook. Supports form submissions (Typeform, Tally, native), CRM triggers (HubSpot, Attio), and LinkedIn Sales Navigator exports. Authenticated via HMAC signature to prevent spoofing.</p>
+      <p><strong>Average trigger latency:</strong> 140ms from lead creation to pipeline start.</p>
+      <div class="arch-modal-code"><span class="com">// n8n webhook node config</span>
+<span class="kw">export</span> <span class="kw">const</span> <span class="fn">webhookConfig</span> = {
+  path: <span class="str">'/enrich/v2'</span>,
+  method: <span class="str">'POST'</span>,
+  authentication: <span class="str">'hmac'</span>,
+  <span class="fn">validate</span>(payload) {
+    <span class="kw">if</span> (!payload.email) <span class="kw">throw</span> <span class="str">'missing_email'</span>;
+    <span class="kw">if</span> (!payload.source) <span class="kw">throw</span> <span class="str">'missing_source'</span>;
+    <span class="kw">return</span> <span class="kw">true</span>;
+  }
+};</div>
+      <div class="arch-modal-meta">
+        <span class="item">Latency <strong>140ms</strong></span>
+        <span class="item">Cost <strong>free</strong></span>
+        <span class="item">Failure rate <strong>0.02%</strong></span>
+      </div>`
+  },
+  'clearbit': {
+    title: 'Clearbit + Apollo',
+    subtitle: 'Company firmographics · parallel fetch',
+    body: `
+      <p>Two data providers run in <strong>parallel</strong> to cover each other's blind spots. Clearbit is stronger on US tech, Apollo has better European coverage. We dedupe and reconcile conflicts based on source confidence scores.</p>
+      <p><strong>Typical fields returned:</strong> company size, industry, tech stack, funding stage, recent news, revenue estimate.</p>
+      <div class="arch-modal-code"><span class="kw">const</span> [clearbit, apollo] = <span class="kw">await</span> Promise.all([
+  <span class="fn">fetchClearbit</span>(domain),
+  <span class="fn">fetchApollo</span>(domain)
+]);
+
+<span class="kw">const</span> company = <span class="fn">reconcile</span>(clearbit, apollo, {
+  strategy: <span class="str">'highest_confidence'</span>,
+  fallback: <span class="str">'most_recent'</span>
+});</div>
+      <div class="arch-modal-meta">
+        <span class="item">Latency <strong>~1.8s</strong></span>
+        <span class="item">Cost <strong>$0.04/lead</strong></span>
+        <span class="item">Coverage <strong>94%</strong></span>
+      </div>`
+  },
+  'linkedin': {
+    title: 'LinkedIn Sales Navigator API',
+    subtitle: 'Individual profile + recent activity',
+    body: `
+      <p>Fetches the lead's individual profile, recent posts, job changes (last 6 months), and engagement signals. This is what separates a contact from an <em>opportunity</em> — the timing signals.</p>
+      <p><strong>Signals we track:</strong> job change (high intent), posting frequency (active pipeline), engagement with competitors.</p>
+      <div class="arch-modal-code"><span class="kw">const</span> signals = {
+  <span class="fn">jobChange</span>: profile.career.lastChange &lt; <span class="num">180</span>,
+  <span class="fn">highActivity</span>: profile.posts.last30d &gt; <span class="num">3</span>,
+  <span class="fn">engagingCompetitors</span>: <span class="fn">checkEngagement</span>(profile, COMPETITORS)
+};
+
+<span class="kw">const</span> intentScore = <span class="fn">calculateIntent</span>(signals);</div>
+      <div class="arch-modal-meta">
+        <span class="item">Latency <strong>~2.1s</strong></span>
+        <span class="item">Cost <strong>$0.03/lead</strong></span>
+      </div>`
+  },
+  'intent': {
+    title: 'G2 + Bombora Intent Signals',
+    subtitle: 'Active buying intent detection',
+    body: `
+      <p>Intent signals are the difference between "interesting lead" and "lead actively evaluating solutions right now." G2 tracks category views, Bombora tracks content consumption across 4,000+ B2B sites.</p>
+      <p>We weight these signals 2x in the scoring model — a lead researching your category right now is worth 2x more than a cold match.</p>
+      <div class="arch-modal-code"><span class="kw">const</span> intentData = <span class="kw">await</span> <span class="fn">getIntentSignals</span>({
+  domain: lead.company.domain,
+  categories: [<span class="str">'sales-enablement'</span>, <span class="str">'lead-gen'</span>],
+  window: <span class="num">30</span> <span class="com">// days</span>
+});
+
+<span class="kw">if</span> (intentData.surgeScore &gt; <span class="num">80</span>) {
+  lead.priority = <span class="str">'hot'</span>;
+}</div>
+      <div class="arch-modal-meta">
+        <span class="item">Latency <strong>~1.2s</strong></span>
+        <span class="item">Cost <strong>$0.04/lead</strong></span>
+        <span class="item">Updated <strong>daily</strong></span>
+      </div>`
+  },
+  'claude': {
+    title: 'Claude Sonnet 4.5 — Synthesis + Scoring',
+    subtitle: 'The core reasoning layer',
+    body: `
+      <p>Claude receives <strong>all</strong> structured data from the previous nodes, synthesizes it into a narrative profile, computes the fit score (0-100), and drafts an icebreaker in the rep's tone-of-voice. Every output comes with reasoning logs.</p>
+      <p><strong>Prompt length:</strong> ~1,200 tokens input, ~600 tokens output. <strong>Cost:</strong> $0.009 per call.</p>
+      <div class="arch-modal-code"><span class="kw">const</span> prompt = \`
+<span class="com">You are a senior sales analyst.
+Given the following enriched lead data,
+produce:
+  1. A 2-sentence profile summary
+  2. Fit score (0-100) with reasoning
+  3. Icebreaker draft in {rep_tone}
+
+Only cite facts present in the data.
+Never hallucinate.
+
+Data: \${JSON.stringify(lead)}</span>\`;
+
+<span class="kw">const</span> result = <span class="kw">await</span> claude.<span class="fn">messages</span>.<span class="fn">create</span>({
+  model: <span class="str">'claude-sonnet-4-5'</span>,
+  max_tokens: <span class="num">800</span>,
+  messages: [{ role: <span class="str">'user'</span>, content: prompt }]
+});</div>
+      <div class="arch-modal-meta">
+        <span class="item">Latency <strong>~3.2s</strong></span>
+        <span class="item">Cost <strong>$0.009/lead</strong></span>
+        <span class="item">Hallucination rate <strong>&lt;0.3%</strong></span>
+      </div>`
+  },
+  'rules': {
+    title: 'Rules Engine — Routing',
+    subtitle: 'Deterministic · no LLM in this step',
+    body: `
+      <p>Claude's output is advisory. The <strong>routing decision is deterministic</strong>: a pure rules engine maps (tier × score × region × rep capacity) → assigned rep. Sales ops can audit and modify these rules without touching code.</p>
+      <p>No LLM in this step means: predictable behavior, no surprises, easy to debug.</p>
+      <div class="arch-modal-code"><span class="kw">const</span> rules = [
+  { <span class="fn">when</span>: (l) =&gt; l.tier === <span class="str">'enterprise'</span> &amp;&amp; l.score &gt; <span class="num">85</span>,
+    <span class="fn">assign</span>: <span class="str">'on-call-ae'</span>, <span class="fn">sla</span>: <span class="num">15</span> },
+  { <span class="fn">when</span>: (l) =&gt; l.score &gt; <span class="num">70</span>,
+    <span class="fn">assign</span>: <span class="str">'round-robin'</span>, <span class="fn">sla</span>: <span class="num">60</span> },
+  { <span class="fn">when</span>: (l) =&gt; l.score &gt; <span class="num">50</span>,
+    <span class="fn">assign</span>: <span class="str">'nurture-queue'</span>, <span class="fn">sla</span>: <span class="num">1440</span> },
+  { <span class="fn">when</span>: () =&gt; <span class="kw">true</span>,
+    <span class="fn">assign</span>: <span class="str">'auto-dismiss'</span> }
+];</div>
+      <div class="arch-modal-meta">
+        <span class="item">Latency <strong>&lt;50ms</strong></span>
+        <span class="item">Cost <strong>free</strong></span>
+        <span class="item">Editable <strong>no deploy needed</strong></span>
+      </div>`
+  },
+  'hubspot': {
+    title: 'HubSpot — Contact + Company + Deal',
+    subtitle: 'Automated CRM population',
+    body: `
+      <p>Creates or updates the HubSpot contact, associated company record, and (if the lead is hot) a new deal in the pipeline. Uses fuzzy matching on email/domain to avoid duplicates.</p>
+      <p>All custom fields from enrichment are written to HubSpot properties so sales can filter and segment naturally.</p>
+      <div class="arch-modal-meta">
+        <span class="item">Latency <strong>~400ms</strong></span>
+        <span class="item">Cost <strong>included in plan</strong></span>
+        <span class="item">Dedup rate <strong>99.1%</strong></span>
+      </div>`
+  },
+  'slack': {
+    title: 'Slack — #new-leads Feed',
+    subtitle: 'Rich block messages · one-click accept/reject',
+    body: `
+      <p>Each qualified lead posts as a Slack Block Kit message in <code>#new-leads</code> with: profile summary, score, source attribution, and 3 action buttons: <strong>Accept</strong>, <strong>Reject</strong>, <strong>Need info</strong>.</p>
+      <p>Reactions feed back into the scoring model to improve future enrichments (supervised learning loop).</p>
+      <div class="arch-modal-meta">
+        <span class="item">Latency <strong>~300ms</strong></span>
+        <span class="item">Cost <strong>free</strong></span>
+      </div>`
+  },
+  'attio': {
+    title: 'Attio + Linear — Tasks + Follow-ups',
+    subtitle: 'Graceful degradation',
+    body: `
+      <p>Creates follow-up tasks for the assigned rep in Attio (CRM) and Linear (work tracker). Both integrations <strong>fail gracefully</strong> — if either is down, the pipeline continues without raising an error.</p>
+      <p>The task includes the icebreaker draft pre-populated, so the rep can review, tweak, and send from one screen.</p>
+      <div class="arch-modal-meta">
+        <span class="item">Latency <strong>~500ms</strong></span>
+        <span class="item">Cost <strong>included in plans</strong></span>
+        <span class="item">Fallback <strong>graceful</strong></span>
+      </div>`
+  }
+};
+
+function openArchModal(nodeKey) {
+  const node = ARCH_NODES[nodeKey];
+  if (!node) return;
+  document.getElementById('archModalTitle').textContent = node.title;
+  document.getElementById('archModalSubtitle').textContent = node.subtitle;
+  document.getElementById('archModalBody').innerHTML = node.body;
+  document.getElementById('archModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeArchModal() {
+  document.getElementById('archModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Close modal on backdrop click
+document.getElementById('archModal').addEventListener('click', (e) => {
+  if (e.target.id === 'archModal') closeArchModal();
+});
+
+// ESC to close
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeArchModal();
+});
+
+// Attach click handlers to architecture nodes
+function attachArchClicks() {
+  const nodes = document.querySelectorAll('.arch-node');
+  // Map by position order (since we don't have data attributes yet)
+  const nodeKeys = ['webhook', 'clearbit', 'linkedin', 'intent', 'claude', 'rules', 'hubspot', 'slack', 'attio'];
+  nodes.forEach((node, i) => {
+    if (nodeKeys[i]) {
+      node.addEventListener('click', () => openArchModal(nodeKeys[i]));
+    }
+  });
+}
+attachArchClicks();
+
+// ============ TAB HIDDEN PAUSE ============
+document.addEventListener('visibilitychange', () => {
+  document.body.classList.toggle('tab-hidden', document.hidden);
+});
+
+// ============ DEMO (existing) ============
+const demoEmail = document.getElementById('demoEmail');
+const demoRun = document.getElementById('demoRun');
+const demoOutput = document.getElementById('demoOutput');
+const demoChips = document.querySelectorAll('.demo-chip');
+
+const examples = {
+  '1': 'sarah.chen@stripe.com',
+  '2': 'mike@acmeplumbing.co',
+  '3': 'alex@studioforge.agency'
+};
+
+const results = {
+  'sarah.chen@stripe.com': {
+    company: 'Stripe', industry: 'Fintech · Payments', size: '8,000+ employees',
+    role: 'VP of Engineering · Infrastructure', seniority: 'VP+',
+    score: '94 / 100', fit: 'Strong', intent: 'Active · researching AI infrastructure tools',
+    icebreaker: "Sarah — saw your team just shipped the new Radar Assistant. Noticed you're leaning heavier on LLM-based anomaly detection. We've deployed similar infra for two Series C fintechs — would love to compare notes on latency tradeoffs. 15 min?"
+  },
+  'mike@acmeplumbing.co': {
+    company: 'Acme Plumbing Co', industry: 'Home Services · Local', size: '12 employees',
+    role: 'Owner / Operator', seniority: 'Founder',
+    score: '38 / 100', fit: 'Weak', intent: 'Low · no digital footprint',
+    icebreaker: "Mike — small-biz fit looks limited here (under our minimum spend threshold). Recommend: auto-nurture sequence only. Do not assign human SDR time."
+  },
+  'alex@studioforge.agency': {
+    company: 'Studio Forge', industry: 'Creative Agency · Design', size: '28 employees',
+    role: 'Founder · Creative Director', seniority: 'Founder',
+    score: '81 / 100', fit: 'Good', intent: 'Moderate · posted about automation twice this month',
+    icebreaker: "Alex — caught your thread on client scope creep. The auto-brief pipeline we built for a similar shop cut their onboarding from 4 days to 40 min. Want to see the Loom? Takes 3 minutes."
+  }
+};
+
+if (demoChips) {
+  demoChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      demoEmail.value = examples[chip.dataset.example];
+    });
+  });
+}
+
+if (demoRun) {
+  demoRun.addEventListener('click', () => {
+    const email = demoEmail.value.trim();
+    if (!email) return;
+    const result = results[email] || results['sarah.chen@stripe.com'];
+    demoRun.disabled = true;
+    demoOutput.innerHTML = '<div class="cmd-line">initializing pipeline...</div>';
+
+    const steps = [
+      { delay: 300, html: '<div class="cmd-line">source 1/10 · clearbit → <span style="color:var(--green-3)">200 OK</span></div>' },
+      { delay: 200, html: '<div class="cmd-line">source 2/10 · apollo → <span style="color:var(--green-3)">200 OK</span></div>' },
+      { delay: 250, html: '<div class="cmd-line">source 3/10 · linkedin → <span style="color:var(--green-3)">200 OK</span></div>' },
+      { delay: 200, html: '<div class="cmd-line">source 4/10 · g2 → <span style="color:var(--green-3)">200 OK</span></div>' },
+      { delay: 300, html: '<div class="cmd-line">source 5–10 · <span style="color:var(--green-3)">complete · 1.2s</span></div>' },
+      { delay: 400, html: '<div class="processing"><span class="spinner"></span>claude sonnet 4.5 · synthesizing profile...</div>' },
+      { delay: 1400, html: `
+        <div class="cmd-line" style="margin-top:12px">enrichment · <span style="color:var(--green-3)">complete · 8.6s</span></div>
+        <div class="result-block">
+          <div class="line"><span class="key">company</span><span class="val">${result.company}</span></div>
+          <div class="line"><span class="key">industry</span><span class="val">${result.industry}</span></div>
+          <div class="line"><span class="key">headcount</span><span class="val">${result.size}</span></div>
+          <div class="divider"></div>
+          <div class="line"><span class="key">role</span><span class="val">${result.role}</span></div>
+          <div class="line"><span class="key">seniority</span><span class="val ochre">${result.seniority}</span></div>
+          <div class="divider"></div>
+          <div class="line"><span class="key">fit score</span><span class="val green">${result.score}</span></div>
+          <div class="line"><span class="key">fit quality</span><span class="val">${result.fit}</span></div>
+          <div class="line"><span class="key">intent</span><span class="val">${result.intent}</span></div>
+        </div>
+        <div class="icebreaker">
+          <div class="icebreaker-label">↗ DRAFT ICEBREAKER · in rep's tone</div>
+          ${result.icebreaker}
+        </div>
+        <div class="success">✓ routed · HubSpot contact created · Slack notified</div>
+      `}
+    ];
+
+    let totalDelay = 0;
+    steps.forEach((step, i) => {
+      totalDelay += step.delay;
+      setTimeout(() => {
+        if (i === 6) {
+          const processing = demoOutput.querySelector('.processing');
+          if (processing) processing.remove();
+        }
+        demoOutput.insertAdjacentHTML('beforeend', step.html);
+        if (i === steps.length - 1) demoRun.disabled = false;
+      }, totalDelay);
+    });
+  });
+}
+
+console.log('%c Ivry Studio · Case 03 · LIVE pipeline.', 'color:#0F5132;font-family:monospace;font-size:13px;');
+</script>
+</body>
+</html>
